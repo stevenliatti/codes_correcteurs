@@ -1,2 +1,4 @@
 .idea/
 codes_correcteurs.iml
+out/
+*.class
