@@ -2,14 +2,12 @@ import java.io.*;
 import java.util.*;
 import java.math.*;
 
-public class Main {
+import reedmuller.Bit;
+import reedmuller.ReedMuller;
 
-    static void printWord(Bit[] word) {
-        for (int i = 0; i < word.length; i++) {
-            System.out.print(word[i] + "");
-        }
-        System.out.println();
-    }
+import static reedmuller.ReedMuller.*;
+
+public class Main {
 
     public static void main(String[] args) throws IOException {
 
@@ -22,7 +20,8 @@ public class Main {
             System.out.println(test.toByteArray()[i]);
         }
 
-        ReedMuller rm = new ReedMuller(3);
+        int rr = 3;
+        ReedMuller rm = new ReedMuller(rr);
         Bit zero = new Bit(0);
         Bit one = new Bit(1);
         Bit word[] = {one, zero, one, zero};
@@ -30,6 +29,26 @@ public class Main {
         printWord(word);
         printWord(wordEncoded);
 
+        for (int i = 0; i < 33; i++) {
+            System.out.println("i : " + i + ", log2(i) : " + log2(i));
+        }
+
+        for (int i = 0; i < 33; i++) {
+            System.out.print("i : " + i + ", array : ");
+            printWord(intToBitArray(i));
+        }
+
+        for (int i = 0; i < 33; i++) {
+            System.out.print("i : " + i + ", array : ");
+            printWord(arrayAtSize(intToBitArray(i), 8));
+        }
+
+        for (int i = 0; i < Math.pow(2, rr + 1); i++) {
+            System.out.print("dec : " + i + ", binary : ");
+            printWord(intToBitArray(i));
+            System.out.print("encoded : ");
+            printWord(rm.encode(arrayAtSize(intToBitArray(i), rr + 1)));
+        }
 
         // ------------------------------------------------------------------------------------------------------
 

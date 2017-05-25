@@ -1,3 +1,5 @@
+package reedmuller;
+
 /**
  * Created by stevenliatti on 25.05.17.
  */
