@@ -4,6 +4,13 @@ import java.math.*;
 
 public class Main {
 
+    static void printWord(Bit[] word) {
+        for (int i = 0; i < word.length; i++) {
+            System.out.print(word[i] + "");
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) throws IOException {
 
         BigInteger test = new BigInteger("42");
@@ -15,7 +22,16 @@ public class Main {
             System.out.println(test.toByteArray()[i]);
         }
 
-        ReedMuller rm = new ReedMuller(4);
+        ReedMuller rm = new ReedMuller(3);
+        Bit zero = new Bit(0);
+        Bit one = new Bit(1);
+        Bit word[] = {one, zero, one, zero};
+        Bit wordEncoded[] = rm.encode(word);
+        printWord(word);
+        printWord(wordEncoded);
+
+
+        // ------------------------------------------------------------------------------------------------------
 
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
