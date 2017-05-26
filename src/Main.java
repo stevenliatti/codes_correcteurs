@@ -6,6 +6,7 @@ import reedmuller.Bit;
 import reedmuller.ReedMuller;
 
 import static reedmuller.ReedMuller.*;
+import static reedmuller.Bit.*;
 
 public class Main {
 
@@ -30,10 +31,6 @@ public class Main {
         printWord(wordEncoded);
 
         for (int i = 0; i < 33; i++) {
-            System.out.println("i : " + i + ", log2(i) : " + log2(i));
-        }
-
-        for (int i = 0; i < 33; i++) {
             System.out.print("i : " + i + ", array : ");
             printWord(intToBitArray(i));
         }
@@ -45,9 +42,13 @@ public class Main {
 
         for (int i = 0; i < Math.pow(2, rr + 1); i++) {
             System.out.print("dec : " + i + ", binary : ");
-            printWord(intToBitArray(i));
+            Bit goodSize[] = arrayAtSize(intToBitArray(i), rr + 1);
+            printWord(goodSize);
             System.out.print("encoded : ");
-            printWord(rm.encode(arrayAtSize(intToBitArray(i), rr + 1)));
+            Bit wordCoded[] = rm.encode(goodSize);
+            printWord(wordCoded);
+	        System.out.print("decoded : ");
+	        printWord(rm.decode(wordCoded));
         }
 
         // ------------------------------------------------------------------------------------------------------
