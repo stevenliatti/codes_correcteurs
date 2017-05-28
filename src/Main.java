@@ -56,6 +56,7 @@ public class Main {
             System.out.println(wordCoded);
             System.out.print("decoded :\t");
             System.out.println(rm.decode(wordCoded));
+            System.out.println("decimal :\t" + wordToInt(goodSize));
         }
 
         System.out.println(hammingDistance(ONE, ONE));

@@ -171,4 +171,12 @@ public class Word {
     public static Word intToWord(int n, int size) {
         return wordAtSize(intToWord(n), size);
     }
+
+    public static int wordToInt(Word word) {
+        int res = 0;
+        for (int i = 0; i < word.size(); i++) {
+            res += word.at(i).equals(ZERO) ? 0 : Math.pow(2, i);
+        }
+        return res;
+    }
 }
