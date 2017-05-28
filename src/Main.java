@@ -4,9 +4,11 @@ import java.math.*;
 
 import reedmuller.Bit;
 import reedmuller.ReedMuller;
+import reedmuller.Word;
 
 import static reedmuller.ReedMuller.*;
 import static reedmuller.Bit.*;
+import static reedmuller.Word.*;
 
 public class Main {
 
@@ -25,31 +27,55 @@ public class Main {
         ReedMuller rm = new ReedMuller(rr);
         Bit zero = new Bit(0);
         Bit one = new Bit(1);
-        Bit word[] = {one, zero, one, zero};
-        Bit wordEncoded[] = rm.encode(word);
-        printWord(word);
-        printWord(wordEncoded);
+        Bit bitArray[] =  {zero, zero, zero, one};
+        Bit bitArray2[] = {one, one, zero, one};
+        Word word = new Word(bitArray);
+        Word word2 = new Word(bitArray2);
+        Word wordEncoded = rm.encode(word);
+        System.out.println(word);
+        System.out.println(wordEncoded);
 
         for (int i = 0; i < 33; i++) {
-            System.out.print("i : " + i + ", array : ");
-            printWord(intToBitArray(i));
+            System.out.print("i : " + i + ", word : ");
+            System.out.println(intToWord(i));
         }
 
+        System.out.println();
+
         for (int i = 0; i < 33; i++) {
-            System.out.print("i : " + i + ", array : ");
-            printWord(arrayAtSize(intToBitArray(i), 8));
+            System.out.print("i : " + i + ", word : ");
+            System.out.println(wordAtSize(intToWord(i), 8));
         }
 
         for (int i = 0; i < Math.pow(2, rr + 1); i++) {
-            System.out.print("dec : " + i + ", binary : ");
-            Bit goodSize[] = arrayAtSize(intToBitArray(i), rr + 1);
-            printWord(goodSize);
-            System.out.print("encoded : ");
-            Bit wordCoded[] = rm.encode(goodSize);
-            printWord(wordCoded);
-	        System.out.print("decoded : ");
-	        printWord(rm.decode(wordCoded));
+            System.out.print("\ndecimal :\t" + i + "\nbinary  :\t");
+            Word goodSize = intToWord(i, rr + 1);
+            System.out.println(goodSize);
+            System.out.print("encoded :\t");
+            Word wordCoded = rm.encode(goodSize);
+            System.out.println(wordCoded);
+            System.out.print("decoded :\t");
+            System.out.println(rm.decode(wordCoded));
         }
+
+        System.out.println(hammingDistance(ONE, ONE));
+        System.out.println(hammingDistance(ONE, ZERO));
+
+        System.out.println(hammingDistance(word, word2));
+        System.out.println(hammingDistance(word, word));
+
+        Word w = new Word(bitArray);
+        for (int i = 0; i < 11; i++) {
+            System.out.println(w);
+            w = w.plusOne();
+        }
+
+        System.out.println("Test de semiExhaustiveSearch");
+        Bit array[] = {zero, one, one, one, one, zero, one, zero};
+        Word noised = new Word(array);
+        System.out.println(noised);
+        Word good = rm.semiExhaustiveSearch(noised);
+        System.out.println(good);
 
         // ------------------------------------------------------------------------------------------------------
 

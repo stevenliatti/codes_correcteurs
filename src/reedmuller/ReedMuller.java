@@ -6,7 +6,7 @@ import static reedmuller.Bit.*;
  * Created by stevenliatti on 25.05.17.
  */
 public class ReedMuller {
-    private Bit g[][];
+    private Word g[];
     private int r;
     private int startDimension;
     private int endDimension;
@@ -20,12 +20,13 @@ public class ReedMuller {
 
     private void buildG() {
         Bit temp = new Bit(0);
-        g = new Bit[startDimension][endDimension];
+        g = new Word[startDimension];
         int alternating = 0;
 
         for (int i = 0; i < r; i++) {
+            g[i] = new Word(endDimension);
             for (int j = 0; j < endDimension; j++) {
-                g[i][j] = new Bit(temp);
+                g[i].at(j, temp);
                 alternating++;
                 if (alternating == (int) pow(2, i)) {
                     temp = temp.not();
@@ -33,51 +34,96 @@ public class ReedMuller {
                 }
             }
         }
-
+        g[r] = new Word(endDimension);
         for (int i = 0; i < endDimension; i++) {
-            g[r][i] = new Bit(1);
+            g[r].at(i, new Bit(1));
         }
     }
 
-    public static void printWord(Bit[] word) {
-        for (int i = 0; i < word.length; i++) {
-            System.out.print(word[i] + "");
-        }
-        System.out.println();
-    }
-
-    public Bit[] encode(Bit[] word) {
-        if (word.length != startDimension) {
+    public Word encode(Word word) {
+        if (word.size() != startDimension) {
             throw new IllegalArgumentException("The word's length is false (good length = " + startDimension + ")");
         }
-        Bit wordEncoded[] = new Bit[endDimension];
+        Word wordEncoded = new Word(endDimension);
         for (int i = 0; i < endDimension; i++) {
-            wordEncoded[i] = new Bit(0);
+            wordEncoded.at(i, new Bit(0));
             for (int j = 0; j < startDimension; j++) {
-                wordEncoded[i] = wordEncoded[i].add(mult(word[j], g[j][i]));
+                wordEncoded.at(i, add(mult(word.at(j), g[j].at(i)), wordEncoded.at(i)));
             }
         }
         return wordEncoded;
     }
 
-	public Bit[] decode(Bit[] word) {
-		if (word.length != endDimension) {
+	public Word decode(Word word) {
+		if (word.size() != endDimension) {
 			throw new IllegalArgumentException("The word's length is false (good length = " + endDimension + ")");
 		}
-		Bit wordDecoded[] = new Bit[startDimension];
-		Bit xR = new Bit(word[0]);
-		wordDecoded[r] = xR;
+		Word wordDecoded = new Word(startDimension);
+		Bit xR = new Bit(word.at(0));
+		wordDecoded.at(r, xR);
 
-		Bit[] w = new Bit[endDimension];
+		Word w = new Word(endDimension);
 		for (int i = 0; i < endDimension; i++) {
-			w[i] = add(mult(xR, g[r][i]), word[i]);
+			w.at(i, add(mult(xR, g[r].at(i)), word.at(i)));
 		}
 		for (int i = 0; i < r; i++) {
-			wordDecoded[i] = w[(int) pow(2, i)];
+			wordDecoded.at(i, w.at((int) pow(2, i)));
 		}
 
 		return wordDecoded;
 	}
+	
+	public static int hammingDistance(Bit one, Bit two) {
+        return one.equals(two) ? 0 : 1;
+    }
+    
+    public static int hammingDistance(Word one, Word two) {
+        if (one.size() != two.size()) {
+            throw new IllegalArgumentException("The length's words must be the same");
+        }
+        int res = 0;
+        for (int i = 0; i < one.size(); i++) {
+            res += hammingDistance(one.at(i), two.at(i));
+        }
+        return res;
+    }
+
+    private int transformationF(Word y, Word z) {
+        if (y.size() != endDimension && z.size() != endDimension) {
+            throw new IllegalArgumentException("The word's length is false (good length = " + endDimension + ")");
+        }
+        int res = 0;
+        for (int i = 0; i < endDimension; i++) {
+            res += (int) pow(-1, add(y.at(i), z.at(i)).v());
+        }
+        return res;
+    }
+
+    private int transformationF2(Word y, Word z) {
+        if (y.size() != endDimension && z.size() != endDimension) {
+            throw new IllegalArgumentException("The word's length is false (good length = " + endDimension + ")");
+        }
+        return endDimension - 2 * hammingDistance(y, z);
+    }
+
+    public Word semiExhaustiveSearch(Word noised) {
+        int min = Integer.MAX_VALUE;
+        int tempMin;
+        Word word = new Word(startDimension);
+        Word tempWord = Word.allWordAt(new Bit(0), startDimension);
+        int f;
+        for (int i = 0; i < endDimension; i++) {
+            f = transformationF2(encode(tempWord), noised);
+            tempMin = f >= 0 ? (endDimension - f) / 2 : (endDimension + f) / 2;
+            if (min > tempMin) {
+                min = tempMin;
+                word = tempWord;
+            }
+            tempWord = tempWord.plusOne();
+        }
+
+        return encode(word);
+    }
 }
 
 
