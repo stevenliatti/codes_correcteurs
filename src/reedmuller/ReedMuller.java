@@ -1,6 +1,7 @@
 package reedmuller;
 
 import static java.lang.Math.pow;
+import static java.lang.Math.random;
 import static reedmuller.Bit.*;
 /**
  * Created by stevenliatti on 25.05.17.
@@ -106,7 +107,23 @@ public class ReedMuller {
         return endDimension - 2 * hammingDistance(y, z);
     }
 
+    public Word noise(Word good, double probability) {
+        if (probability < 0.0 && probability >= 1.0) {
+            throw new IllegalArgumentException("probability must be between 0.0 and 1.0");
+        }
+        Word noised = new Word(good);
+        for (int i = 0; i < good.size(); i++) {
+            if (random() < probability) {
+                noised.at(i, noised.at(i).not());
+            }
+        }
+        return noised;
+    }
+
     public Word semiExhaustiveSearch(Word noised) {
+        if (noised.size() != endDimension) {
+            throw new IllegalArgumentException("The word's length is false (good length = " + endDimension + ")");
+        }
         int min = Integer.MAX_VALUE;
         int tempMin;
         Word word = new Word(startDimension);

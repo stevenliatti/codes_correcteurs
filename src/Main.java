@@ -77,6 +77,9 @@ public class Main {
         Word good = rm.semiExhaustiveSearch(noised);
         System.out.println(good);
 
+        System.out.println("Test noise");
+        System.out.println(rm.noise(good, 0.5));
+
         // ------------------------------------------------------------------------------------------------------
 
         // permet de prendre les entrées pour le menu
