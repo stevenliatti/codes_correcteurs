@@ -113,12 +113,13 @@ public class Word {
     }
 
     /**
-     * Calcule le log en base 2 arrondi à l'entier supérieur (exemple pour x = 4 => log = 5)
+     * Calcule le log en base 2 arrondi à l'entier supérieur (exemple pour x = 4 => log2 = 3,
+     * x = 8 => log2 = 4, x = 16 => log2 = 5, etc.)
      *
      * @param x Un entier positif
      * @return Le log en base 2 arrondi à l'entier supérieur
      */
-    private static int log2(int x) {
+    public static int log2(int x) {
         if (x < 0) {
             throw new IllegalArgumentException("x must be 0 or greater");
         }

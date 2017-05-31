@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.math.*;
 
+import images.PGM;
 import reedmuller.Bit;
 import reedmuller.ReedMuller;
 import reedmuller.Word;
@@ -12,8 +13,8 @@ import static reedmuller.Word.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-
+    public static void testFunction() {
+        System.out.println("testFunction");
         BigInteger test = new BigInteger("42");
         System.out.println(test.byteValue());
         System.out.println(test.bitLength());
@@ -34,6 +35,10 @@ public class Main {
         Word wordEncoded = rm.encode(word);
         System.out.println(word);
         System.out.println(wordEncoded);
+
+        for (int i = 0; i < 64; i++) {
+            System.out.println("log2 de " + i + " : " + log2(i));
+        }
 
         for (int i = 0; i < 33; i++) {
             System.out.print("i : " + i + ", word : ");
@@ -80,8 +85,21 @@ public class Main {
 
         System.out.println("Test noise");
         System.out.println(rm.noise(good, 0.5));
+    }
 
-        // ------------------------------------------------------------------------------------------------------
+    public static void testReader() throws IOException {
+        System.out.println("testReader");
+        PGM pgm = PGM.read("data/lena_128x128_64.pgm");
+        System.out.println(pgm);
+        System.out.println(PGM.read("data/mars-crat.enc.alt_0.07"));
+        System.out.println(PGM.read("data/mars-crat.enc.alt_0.10"));
+        pgm.write("data/lena_copy.pgm");
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(log2(64));
+        testReader();
+        testFunction();
 
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
@@ -111,6 +129,11 @@ public class Main {
         System.err.println("Choisir un seuil de bruit (nombre entre 0.0 et 1.0): ");
         double seuil = in.nextDouble();
 
+        ReedMuller rm = new ReedMuller(r);
+        BigInteger mot = new BigInteger("0");
+        Word intToWord = null;
+        Word current = null;
+
         // traiter un mot ou une image
         System.err.println("\nMenu initial");
         System.err.println("0: Quitter");
@@ -132,30 +155,27 @@ public class Main {
             do {
                 switch (choix) {
                     case 1:
-                        // vos opérations pour l'encodage du mot courant,
-                        // ne rien afficher sur la sortie standard
+                        current = rm.encode(intToWord);
                         break;
                     case 2:
-                        // vos opérations pour le décodage du mot courant,
-                        // ne rien afficher sur la sortie standard
+                        current = rm.decode(intToWord);
                         break;
                     case 3:
-                        // vos opérations pour le bruitage du mot courant,
-                        // ne rien afficher sur la sortie standard
+                        current = rm.noise(intToWord, seuil);
                         break;
                     case 4:
-                        // vos opérations pour le débruitage du mot courant,
-                        // ne rien afficher sur la sortie standard
+                        current = rm.semiExhaustiveSearch(intToWord);
                         break;
                     case 5:
                         System.err.println("\nEntrer un mot (en décimal)");
-                        BigInteger mot = new BigInteger(in.next());
+                        mot = new BigInteger(in.next());
+                        intToWord = intToWord(mot.intValue(), r + 1);
                         break;
                 }
                 if (choix != 5) {
                     System.err.println("Valeur du mot courant (en décimal):");
-                    // imprimer la valeur du mot courant en décimal
-                    // sur la sortie standard
+                    System.out.println(mot.intValue());
+                    System.out.println(current);
                 }
                 System.err.println(menu);
                 choix = in.nextInt();
@@ -183,13 +203,13 @@ public class Main {
                     case 5:
                         System.err.println("Nom du fichier de l'image à charger (format png):");
                         fileName = in.next();
-                        // lire le fichier contenant l'image pgm
+                        // lire le fichier contenant l'image images
                         break;
                 }
                 if (choix != 5) {
                     System.err.println("Nom du fichier où sauver l'image courante (format png):");
                     fileName = in.next();
-                    // sauver l'image courante au format pgm
+                    // sauver l'image courante au format images
                 }
                 System.err.println(menu);
                 choix = in.nextInt();
