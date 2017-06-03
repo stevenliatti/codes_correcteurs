@@ -12,7 +12,6 @@ import static images.PGM.write;
 import static reedmuller.Word.bigIntToWord;
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
@@ -133,12 +132,3 @@ public class Main {
 //Décoder => Encoder ou Réinitialiser
 //Bruiter => Débruiter ou Bruiter ou Réinitialiser
 //Débruiter => Bruiter ou Décoder ou Réinitialiser
-
-
-
-
-
-
-
-
-
