@@ -1,16 +1,19 @@
 package reedmuller;
 
+import java.math.BigInteger;
+
 import static java.lang.Math.pow;
 import static java.lang.Math.random;
 import static reedmuller.Bit.*;
+import static reedmuller.Word.*;
 /**
  * Created by stevenliatti on 25.05.17.
  */
 public class ReedMuller {
     private Word g[];
-    private int r;
-    private int startDimension;
-    private int endDimension;
+    private Integer r;
+    private Integer startDimension;
+    private Integer endDimension;
 
     public ReedMuller(int r) {
         this.r = r;
@@ -85,7 +88,20 @@ public class ReedMuller {
 
 		return wordDecoded;
 	}
-	
+
+    public Word noise(Word good, double probability) {
+        if (probability < 0.0 && probability >= 1.0) {
+            throw new IllegalArgumentException("probability must be between 0.0 and 1.0");
+        }
+        Word noised = new Word(good);
+        for (int i = 0; i < good.size(); i++) {
+            if (random() < probability) {
+                noised.at(i, noised.at(i).not());
+            }
+        }
+        return noised;
+    }
+
 	private static int hammingDistance(Bit one, Bit two) {
         return one.equals(two) ? 0 : 1;
     }
@@ -119,19 +135,6 @@ public class ReedMuller {
         return endDimension - 2 * hammingDistance(y, z);
     }
 
-    public Word noise(Word good, double probability) {
-        if (probability < 0.0 && probability >= 1.0) {
-            throw new IllegalArgumentException("probability must be between 0.0 and 1.0");
-        }
-        Word noised = new Word(good);
-        for (int i = 0; i < good.size(); i++) {
-            if (random() < probability) {
-                noised.at(i, noised.at(i).not());
-            }
-        }
-        return noised;
-    }
-
     public Word semiExhaustiveSearch(Word noised) {
         if (noised.size() != endDimension) {
             throw new IllegalArgumentException("The word's length is false (good length = " + endDimension + ")");
@@ -140,13 +143,19 @@ public class ReedMuller {
         int tempMin;
         Word word = new Word(startDimension);
         Word tempWord = Word.allWordAt(new Bit(0), startDimension);
+        BigInteger brLike = new BigInteger(endDimension.toString());
         int f;
         for (int i = 0; i < endDimension; i++) {
             f = transformationF2(encode(tempWord), noised);
             tempMin = f >= 0 ? (endDimension - f) / 2 : (endDimension + f) / 2;
             if (min > tempMin) {
                 min = tempMin;
-                word = tempWord;
+                if (f < 0) {
+                    word = bigIntToWord(brLike.add(wordToBigInt(tempWord)));
+                }
+                else {
+                    word = tempWord;
+                }
             }
             tempWord = tempWord.plusOne();
         }

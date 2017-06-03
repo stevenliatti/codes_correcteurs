@@ -133,7 +133,7 @@ public class PGM {
         writeAndNewLine(bw, image.width + " " + image.height);
         writeAndNewLine(bw, Integer.toString(image.greyLevel));
         for (String v : image.values) {
-            bw.write(v + "\n");
+            bw.write(v + " ");
         }
         bw.close();
     }

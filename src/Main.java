@@ -18,7 +18,7 @@ public class Main {
 
 
     public static void testReader() throws IOException {
-        System.out.println("testReader");
+        System.out.println("testReader Lena");
         PGM pgm = read("data/lena_128x128_64.pgm");
         System.out.println(pgm);
 
