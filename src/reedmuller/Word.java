@@ -116,8 +116,22 @@ public class Word {
         return ((long) (Math.log10(x) / Math.log10(2))) + 1;
     }
 
+    private static BigInteger twoComplement(BigInteger n){
+        BigInteger tempBg = new BigInteger(n.abs().toString());
+        Word tempWord = bigIntToWord(tempBg);
+        tempWord = tempWord.not();
+        tempWord = tempWord.plusOne();
+        return wordToBigInt(tempWord);
+    }
+
     public static Word bigIntToWord(BigInteger n) {
-        String reverse = n.toString(2);
+        String reverse;
+        if (n.signum() < 0) {
+            reverse = twoComplement(n).toString(2);
+        }
+        else {
+            reverse = n.toString(2);
+        }
         Bit word[] = new Bit[reverse.length()];
         for (int i = 0; i < reverse.length(); i++) {
             word[i] = new Bit(reverse.charAt(reverse.length() - i - 1));

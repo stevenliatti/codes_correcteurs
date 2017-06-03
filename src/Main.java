@@ -8,14 +8,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
-import static reedmuller.Word.bigIntToWord;
-import static reedmuller.Word.log2;
-import static reedmuller.Word.wordToBigInt;
 import static images.PGM.*;
+import static reedmuller.Word.*;
 
 public class Main {
-
-
 
     public static void testReader() throws IOException {
         System.out.println("testReader Lena");
@@ -32,6 +28,17 @@ public class Main {
         PGM pgm3 = read("data/lena_noised.pgm");
         write(pgm3.denoise(), "data/lena_denoised.pgm");
         write(pgm3.denoise().decode(), "data/lena_denoised_decoded.pgm");
+    }
+
+    static void testReader2() throws IOException {
+        System.out.println("testReader Mars");
+        PGM pgm4 = read("data/mars-crat.enc.alt_0.07");
+        write(pgm4.denoise(), "data/mars_007_denoised.pgm");
+        write(pgm4.denoise().decode(), "data/mars_007_denoised_decoded.pgm");
+
+        PGM pgm5 = read("data/mars-crat.enc.alt_0.10");
+        write(pgm5.denoise(), "data/mars_010_denoised.pgm");
+        write(pgm5.denoise().decode(), "data/mars_010_denoised_decoded.pgm");
     }
 
     static void testFunction() {
@@ -80,8 +87,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        System.out.println(log2(63));
-        testReader();
-        testFunction();
+        testReader2();
 
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
