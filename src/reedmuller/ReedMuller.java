@@ -41,6 +41,18 @@ public class ReedMuller {
         }
     }
 
+    public int getR() {
+        return r;
+    }
+
+    public int getStartDimension() {
+        return startDimension;
+    }
+
+    public int getEndDimension() {
+        return endDimension;
+    }
+
     public Word encode(Word word) {
         if (word.size() != startDimension) {
             throw new IllegalArgumentException("The word's length is false (good length = " + startDimension + ")");
@@ -74,11 +86,11 @@ public class ReedMuller {
 		return wordDecoded;
 	}
 	
-	public static int hammingDistance(Bit one, Bit two) {
+	private static int hammingDistance(Bit one, Bit two) {
         return one.equals(two) ? 0 : 1;
     }
     
-    public static int hammingDistance(Word one, Word two) {
+    private static int hammingDistance(Word one, Word two) {
         if (one.size() != two.size()) {
             throw new IllegalArgumentException("The length's words must be the same");
         }
@@ -142,27 +154,3 @@ public class ReedMuller {
         return encode(word);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

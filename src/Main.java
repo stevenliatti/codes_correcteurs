@@ -1,103 +1,85 @@
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
 import images.PGM;
 import reedmuller.Bit;
 import reedmuller.ReedMuller;
 import reedmuller.Word;
 
-import static reedmuller.ReedMuller.*;
-import static reedmuller.Bit.*;
-import static reedmuller.Word.*;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Scanner;
+
+import static reedmuller.Word.bigIntToWord;
+import static reedmuller.Word.log2;
+import static reedmuller.Word.wordToBigInt;
+import static images.PGM.*;
 
 public class Main {
 
-    public static void testFunction() {
-        System.out.println("testFunction");
-        BigInteger test = new BigInteger("42");
-        System.out.println(test.byteValue());
-        System.out.println(test.bitLength());
-        System.out.println(test.bitCount());
 
-        for (int i = 0; i < test.toByteArray().length; i++) {
-            System.out.println(test.toByteArray()[i]);
-        }
 
-        int rr = 3;
-        ReedMuller rm = new ReedMuller(rr);
-        Bit zero = new Bit(0);
-        Bit one = new Bit(1);
-        Bit bitArray[] =  {zero, zero, zero, one};
-        Bit bitArray2[] = {one, one, zero, one};
-        Word word = new Word(bitArray);
-        Word word2 = new Word(bitArray2);
-        Word wordEncoded = rm.encode(word);
+    public static void testReader() throws IOException {
+        System.out.println("testReader");
+        PGM pgm = read("data/lena_128x128_64.pgm");
+        System.out.println(pgm);
+
+        write(pgm, "data/lena_copy.pgm");
+        write(pgm.encode(), "data/lena_encoded.pgm");
+
+        PGM pgm2 = read("data/lena_encoded.pgm");
+        write(pgm2.decode(), "data/lena_decoded.pgm");
+        write(pgm2.noise(0.1), "data/lena_noised.pgm");
+
+        PGM pgm3 = read("data/lena_noised.pgm");
+        write(pgm3.denoise(), "data/lena_denoised.pgm");
+        write(pgm3.denoise().decode(), "data/lena_denoised_decoded.pgm");
+    }
+
+    static void testFunction() {
+        System.out.println(log2(63));
+        System.out.println(log2(64));
+        BigInteger bg = new BigInteger("41");
+        BigInteger bg2 = new BigInteger("64");
+        System.out.println("bg " + bg.bitLength());
+        System.out.println("bg2 " + bg2.bitLength());
+        System.out.println(bg2.toString(2));
+        Bit b = new Bit('0');
+        Bit b1 = new Bit('1');
+        Bit b2 = new Bit('1');
+        System.out.println("bbbb : " + b + "," + b1 + "," + b2 + " ");
+
+        System.out.println("------------- Word ---------------");
+        Word word = bigIntToWord(bg);
+
+        Word word2 = new ReedMuller(5).encode(word);
+
         System.out.println(word);
-        System.out.println(wordEncoded);
+        System.out.println(wordToBigInt(word));
 
-        for (int i = 0; i < 64; i++) {
-            System.out.println("log2 de " + i + " : " + log2(i));
-        }
+        System.out.println(word2);
+        System.out.println(wordToBigInt(word2));
 
-        for (int i = 0; i < 33; i++) {
-            System.out.print("i : " + i + ", word : ");
-            System.out.println(intToWord(i));
-        }
 
-        System.out.println();
+        System.out.println("Table");
+        int rr = 5;
+        ReedMuller rm = new ReedMuller(rr);
 
-        for (int i = 0; i < 33; i++) {
-            System.out.print("i : " + i + ", word : ");
-            System.out.println(wordAtSize(intToWord(i), 8));
-        }
-
-        for (int i = 0; i < Math.pow(2, rr + 1); i++) {
+        for (Integer i = 0; i < Math.pow(2, rr + 1); i++) {
             System.out.print("\ndecimal :\t" + i + "\nbinary  :\t");
-            Word goodSize = intToWord(i, rr + 1);
+            Word goodSize = bigIntToWord(new BigInteger(i.toString()), rr + 1);
             System.out.println(goodSize);
             System.out.print("encoded :\t");
             Word wordCoded = rm.encode(goodSize);
             System.out.println(wordCoded);
-            System.out.print("decoded :\t");
-            System.out.println(rm.decode(wordCoded));
-            System.out.println("decimal :\t" + wordToInt(goodSize));
+            System.out.println("decimal :\t" + wordToBigInt(wordCoded));
+//            System.out.print("decoded :\t");
+//            System.out.println(rm.decode(wordCoded));
+//            System.out.println("decimal :\t" + wordToBigInt(goodSize));
         }
 
-        System.out.println(hammingDistance(ONE, ONE));
-        System.out.println(hammingDistance(ONE, ZERO));
-
-        System.out.println(hammingDistance(word, word2));
-        System.out.println(hammingDistance(word, word));
-
-        Word w = new Word(bitArray);
-        for (int i = 0; i < 11; i++) {
-            System.out.println(w);
-            w = w.plusOne();
-        }
-
-        System.out.println("Test de semiExhaustiveSearch");
-        Bit array[] = {zero, one, one, one, one, zero, one, zero};
-        Word noised = new Word(array);
-        System.out.println(noised);
-        Word good = rm.semiExhaustiveSearch(noised);
-        System.out.println(good);
-
-        System.out.println("Test noise");
-        System.out.println(rm.noise(good, 0.5));
-    }
-
-    public static void testReader() throws IOException {
-        System.out.println("testReader");
-        PGM pgm = PGM.read("data/lena_128x128_64.pgm");
-        System.out.println(pgm);
-        System.out.println(PGM.read("data/mars-crat.enc.alt_0.07"));
-        System.out.println(PGM.read("data/mars-crat.enc.alt_0.10"));
-        pgm.write("data/lena_copy.pgm");
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(log2(64));
+//        System.out.println(log2(63));
         testReader();
         testFunction();
 
@@ -130,7 +112,7 @@ public class Main {
         double seuil = in.nextDouble();
 
         ReedMuller rm = new ReedMuller(r);
-        BigInteger mot = new BigInteger("0");
+        BigInteger mot = BigInteger.ZERO;
         Word intToWord = null;
         Word current = null;
 
@@ -169,7 +151,7 @@ public class Main {
                     case 5:
                         System.err.println("\nEntrer un mot (en décimal)");
                         mot = new BigInteger(in.next());
-                        intToWord = intToWord(mot.intValue(), r + 1);
+                        intToWord = bigIntToWord(mot, r + 1);
                         break;
                 }
                 if (choix != 5) {

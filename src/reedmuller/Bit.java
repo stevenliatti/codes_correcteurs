@@ -16,16 +16,15 @@ public class Bit {
         this.value = value;
     }
 
+    public Bit(char c) {
+        if ((c != '0') && (c != '1')) {
+            throw new IllegalArgumentException("The value must be 0 or 1");
+        }
+        this.value = Character.getNumericValue(c);
+    }
+
     public Bit(Bit other) {
         value = other.value;
-    }
-
-    public Bit add(Bit bit) {
-        return new Bit((bit.value + value) % 2);
-    }
-
-    public Bit mult(Bit bit) {
-        return new Bit(bit.value * value);
     }
 
     public Bit not() {

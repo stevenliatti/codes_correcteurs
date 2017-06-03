@@ -1,5 +1,6 @@
 package reedmuller;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import static reedmuller.Bit.*;
@@ -46,28 +47,6 @@ public class Word {
         value[i] = new Bit(bit);
     }
 
-    public Word addBitToBit(Word other) {
-        if (other.size() != this.size()) {
-            throw new IllegalArgumentException("The other's size must be equal to " + this.size());
-        }
-        Word res = new Word(this.size());
-        for (int i = 0; i < this.size(); i++) {
-            res.value[i] = Bit.add(this.value[i], other.value[i]);
-        }
-        return res;
-    }
-
-    public Word multBitToBit(Word other) {
-        if (other.size() != this.size()) {
-            throw new IllegalArgumentException("The other's size must be equal to " + this.size());
-        }
-        Word res = new Word(this.size());
-        for (int i = 0; i < this.size(); i++) {
-            res.value[i] = Bit.mult(this.value[i], other.value[i]);
-        }
-        return res;
-    }
-
     public Word plusOne() {
         Word newWord = new Word(this);;
         newWord.value[0] = add(value[0], ONE);
@@ -80,6 +59,14 @@ public class Word {
                 newWord.value[i] = add(newWord.value[i], ONE);
                 i++;
             } while (newWord.value[i - 1].equals(ZERO) && i < size());
+        }
+        return newWord;
+    }
+
+    public Word not() {
+        Word newWord = new Word(size());
+        for (int i = 0; i < size(); i++) {
+            newWord.value[i] = value[i].not();
         }
         return newWord;
     }
@@ -98,7 +85,7 @@ public class Word {
     @Override
     public String toString() {
         String str = "";
-        for (int i = 0; i < size(); i++) {
+        for (int i = size() - 1; i >= 0; i--) {
             str += value[i] + "";
         }
         return str;
@@ -119,37 +106,23 @@ public class Word {
      * @param x Un entier positif
      * @return Le log en base 2 arrondi à l'entier supérieur
      */
-    public static int log2(int x) {
+    public static long log2(long x) {
         if (x < 0) {
             throw new IllegalArgumentException("x must be 0 or greater");
         }
         if (x == 0 || x == 1) {
             return 1;
         }
-        return ((int) (Math.log10(x) / Math.log10(2))) + 1;
+        return ((long) (Math.log10(x) / Math.log10(2))) + 1;
     }
 
-    public static Word intToWord(int n) {
-        Word word;
-        if (n == 0) {
-            word = Word.allWordAt(new Bit(0), 1);
+    public static Word bigIntToWord(BigInteger n) {
+        String reverse = n.toString(2);
+        Bit word[] = new Bit[reverse.length()];
+        for (int i = 0; i < reverse.length(); i++) {
+            word[i] = new Bit(reverse.charAt(reverse.length() - i - 1));
         }
-        else if (n == 1) {
-            word = Word.allWordAt(new Bit(1), 1);
-        }
-        else {
-            int size = log2(n);
-            int i = 0;
-            word = new Word(size);
-
-            while (n > 0) {
-                int remainder = n % 2;
-                word.at(i, new Bit(remainder));
-                n = n / 2;
-                i++;
-            }
-        }
-        return word;
+        return new Word(word);
     }
 
     public static Word wordAtSize(Word origin, int size) {
@@ -169,15 +142,11 @@ public class Word {
         return word;
     }
 
-    public static Word intToWord(int n, int size) {
-        return wordAtSize(intToWord(n), size);
+    public static Word bigIntToWord(BigInteger n, int size) {
+        return wordAtSize(bigIntToWord(n), size);
     }
 
-    public static int wordToInt(Word word) {
-        int res = 0;
-        for (int i = 0; i < word.size(); i++) {
-            res += word.at(i).equals(ZERO) ? 0 : Math.pow(2, i);
-        }
-        return res;
+    public static BigInteger wordToBigInt(Word word) {
+        return new BigInteger(word.toString(), 2);
     }
 }
