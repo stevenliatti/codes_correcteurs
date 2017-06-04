@@ -1,3 +1,4 @@
+import com.sun.org.apache.bcel.internal.generic.FADD;
 import images.PGM;
 import reedmuller.ReedMuller;
 import reedmuller.Word;
@@ -9,10 +10,37 @@ import java.util.Scanner;
 
 import static images.PGM.read;
 import static images.PGM.write;
-import static reedmuller.Word.bigIntToWord;
+import static reedmuller.Word.*;
 
 public class Main {
+	private static final boolean DEBUG = false;
+
+	/**
+	 * Fonction de "debug", utile pour avoir la table selon le r donné
+	 * @param r ordre de ReedMuller
+	 */
+    public static void printTable(int r) {
+        System.out.println("Table pour r = " + r);
+        ReedMuller rm = new ReedMuller(r);
+        for (Integer i = 0; i < Math.pow(2, r + 1); i++) {
+            System.out.print("\nx 'chapeau' :\t" + i + "\nbinaire  :\t\t");
+            Word goodSize = bigIntToWord(new BigInteger(i.toString()), r + 1);
+            System.out.println(goodSize);
+            System.out.print("y :\t\t\t\t");
+            Word wordCoded = rm.encode(goodSize);
+            System.out.println(wordCoded);
+            System.out.println("y en décimal :\t" + wordToBigInt(wordCoded));
+            System.out.print("y décodé :\t\t");
+            System.out.println(rm.decode(wordCoded));
+            System.out.println("x 'chapeau' :\t" + wordToBigInt(goodSize));
+        }
+    }
+
     public static void main(String[] args) throws IOException {
+    	// Pour rapidement contrôler la table pour un r donné
+    	if (DEBUG) {
+		    printTable(5);
+    	}
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
         Scanner in;
