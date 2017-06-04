@@ -2,6 +2,7 @@ package reedmuller;
 
 import java.math.BigInteger;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 import static java.lang.Math.random;
 import static reedmuller.Bit.*;
@@ -15,6 +16,7 @@ import static reedmuller.Word.*;
  */
 public class ReedMuller {
     private Word g[];
+    private int h[][];
     private Integer r;
     private Integer startDim;
     private Integer endDim;
@@ -29,6 +31,7 @@ public class ReedMuller {
         startDim = r + 1;
         endDim = (int) (pow(2, r));
         buildG();
+        h = buildH(r);
     }
 
     /**
@@ -56,7 +59,16 @@ public class ReedMuller {
         }
     }
 
-    /**
+	/**
+	 * Retourne l'ordre du code.
+	 *
+	 * @return l'ordre du code
+	 */
+	public Integer getR() {
+		return r;
+	}
+
+	/**
      * Retourne la dimension des mots non codés.
      *
      * @return la dimension des mots non codés
@@ -168,17 +180,6 @@ public class ReedMuller {
         return res;
     }
 
-    private int transformationF(Word y, Word z) {
-        if (y.size() != endDim && z.size() != endDim) {
-            throw new IllegalArgumentException("The word's length is false (good length = " + endDim + ")");
-        }
-        int res = 0;
-        for (int i = 0; i < endDim; i++) {
-            res += (int) pow(-1, add(y.at(i), z.at(i)).v());
-        }
-        return res;
-    }
-
     /**
      * Calcule la transformation F d'un mot bruité.
      *
@@ -186,7 +187,7 @@ public class ReedMuller {
      * @param noised un mot reçu, bruité
      * @return la transformation F d'un mot bruité
      */
-    private int transformationF2(Word valid, Word noised) {
+    private int transformationF(Word valid, Word noised) {
         if (valid.size() != endDim && noised.size() != endDim) {
             throw new IllegalArgumentException("The word's length is false (good length = " + endDim + ")");
         }
@@ -210,7 +211,7 @@ public class ReedMuller {
         BigInteger brLike = new BigInteger(endDim.toString());
         int f;
         for (int i = 0; i < endDim; i++) {
-            f = transformationF2(encode(tempWord), noised);
+            f = transformationF(encode(tempWord), noised);
             tempMin = f >= 0 ? (endDim - f) / 2 : (endDim + f) / 2;
             if (min > tempMin) {
                 min = tempMin;
@@ -227,24 +228,82 @@ public class ReedMuller {
         return encode(word);
     }
 
+	/**
+	 * Construit la matrice H. Récursive.
+	 *
+	 * @param r l'ordre courant
+	 * @return la mtrice H
+	 */
+	private int[][] buildH(int r) {
+    	if (r == 1) {
+		    int tempH[][] = new int[2][2];
+			tempH[0][0] = 1;
+		    tempH[0][1] = 1;
+		    tempH[1][0] = 1;
+		    tempH[1][1] = -1;
+		    return tempH;
+		}
+		else {
+    		int size = (int) pow(2, r);
+    		int subH[][] = buildH(r - 1);
+		    int tempH[][] = new int[size][size];
+
+		    for (int i = 0; i < size / 2; i++) {
+			    for (int j = 0; j < size; j++) {
+				    tempH[i][j] = subH[i][j % 2];
+			    }
+		    }
+		    for (int i = size / 2; i < size; i++) {
+			    for (int j = 0; j < size / 2; j++) {
+				    tempH[i][j] = subH[i % 2][j];
+			    }
+		    }
+		    for (int i = size / 2; i < size; i++) {
+			    for (int j = size / 2; j < size; j++) {
+				    tempH[i][j] = -subH[i % 2][j % 2];
+			    }
+		    }
+
+		    return tempH;
+		}
+    }
+
     /**
-     * Débruite un mot selon la méthode de la recherche rapide.
+     * Débruite et décode un mot selon la méthode de la recherche rapide.
+     * En l'état ne fonctionne pas très bien. Pour tester, il faut remplacer
+     * semiExhaustiveSearch dans Main.java et PGM.java par cette fonction.
      *
      * @param noised un mot bruité
-     * @return le mot corrigé si trouvé
+     * @return le mot corrigé et décodé si trouvé
      */
     public Word fastSearch(Word noised) {
-        Bit q;
-        Bit newF[] = new Bit[endDim];
-        Word tempWord = allWordAt(ZERO, endDim);
-        for (Integer i = 0; i < r; i++) {
-            for (Integer k = 0; k < endDim; k++) {
-                q = tempWord.at(i).not();
-                if (q.equals(ZERO)) {
-                    //newF[k] =
-                }
-            }
-        }
-        return null;
+		int fHat[] = new int[endDim];
+		int f[] = new int[endDim];
+		Word tempWord = Word.allWordAt(new Bit(0), startDim);
+		Integer max = Integer.MIN_VALUE;
+
+	    for (int i = 0; i < endDim; i++) {
+		    f[i] = transformationF(encode(tempWord), noised);
+		    tempWord = tempWord.plusOne();
+		    if (abs(f[i]) > max) {
+		    	max = i;
+		    }
+	    }
+
+	    max = f[max] < 0 ? (max + endDim) % (2 * endDim) : max;
+	    return bigIntToWord(new BigInteger(max.toString()));
+
+	    // En théorie il faudrait faire ce calcul, mais finalement
+	    // d'après nos essais ce n'était pas nécessaire ¯\_(ツ)_/¯
+//	    for (int i = 0; i < endDim; i++) {
+//		    for (int j = 0; j < endDim; j++) {
+//			    fHat[i] += f[j] * h[j][i];
+//		    }
+//		    if (abs(fHat[i]) > max) {
+//		    	max = abs(fHat[i]);
+//		    }
+//	    }
+//
+//        return bigIntToWord(new BigInteger(max.toString()));
     }
 }

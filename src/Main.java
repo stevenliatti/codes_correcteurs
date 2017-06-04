@@ -1,4 +1,3 @@
-import com.sun.org.apache.bcel.internal.generic.FADD;
 import images.PGM;
 import reedmuller.ReedMuller;
 import reedmuller.Word;
@@ -10,21 +9,22 @@ import java.util.Scanner;
 
 import static images.PGM.read;
 import static images.PGM.write;
-import static reedmuller.Word.*;
+import static reedmuller.Word.bigIntToWord;
+import static reedmuller.Word.wordToBigInt;
 
 public class Main {
 	private static final boolean DEBUG = false;
 
 	/**
-	 * Fonction de "debug", utile pour avoir la table selon le r donné
-	 * @param r ordre de ReedMuller
+	 * Fonction de "debug", utile pour avoir la table selon le ReedMuller donné.
+	 *
+	 * @param rm code de ReedMuller
 	 */
-    public static void printTable(int r) {
-        System.out.println("Table pour r = " + r);
-        ReedMuller rm = new ReedMuller(r);
-        for (Integer i = 0; i < Math.pow(2, r + 1); i++) {
+    public static void printTable(ReedMuller rm) {
+        System.out.println("Table pour r = " + rm.getR());
+        for (Integer i = 0; i < Math.pow(2, rm.getStartDim()); i++) {
             System.out.print("\nx 'chapeau' :\t" + i + "\nbinaire  :\t\t");
-            Word goodSize = bigIntToWord(new BigInteger(i.toString()), r + 1);
+            Word goodSize = bigIntToWord(new BigInteger(i.toString()), rm.getStartDim());
             System.out.println(goodSize);
             System.out.print("y :\t\t\t\t");
             Word wordCoded = rm.encode(goodSize);
@@ -37,10 +37,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-    	// Pour rapidement contrôler la table pour un r donné
-    	if (DEBUG) {
-		    printTable(5);
-    	}
         // permet de prendre les entrées pour le menu
         // soit du clavier, d'un fichier ou de la ligne de commande
         Scanner in;
@@ -73,6 +69,11 @@ public class Main {
         BigInteger mot = BigInteger.ZERO;
         Word intToWord = null;
         Word current = null;
+
+	    // Pour rapidement contrôler la table pour un r donné
+	    if (DEBUG) {
+		    printTable(rm);
+	    }
 
         // traiter un mot ou une image
         System.err.println("\nMenu initial");
@@ -114,7 +115,7 @@ public class Main {
                 }
                 if (choix != 5) {
                     System.err.println("Valeur du mot courant (en décimal):");
-                    System.out.println(mot.intValue());
+                    System.out.println(wordToBigInt(current).intValue());
                     System.out.println(current);
                 }
                 System.err.println(menu);

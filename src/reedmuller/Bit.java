@@ -76,15 +76,6 @@ public class Bit {
         return new Bit(one.value * two.value);
     }
 
-    /**
-     * Retourne la valeur entière du bit.
-     *
-     * @return le bit sous forme de int
-     */
-    public int v() {
-        return value;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
