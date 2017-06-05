@@ -2,11 +2,11 @@ package reedmuller;
 
 import java.math.BigInteger;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.pow;
-import static java.lang.Math.random;
-import static reedmuller.Bit.*;
-import static reedmuller.Word.*;
+import static java.lang.Math.*;
+import static reedmuller.Bit.add;
+import static reedmuller.Bit.mult;
+import static reedmuller.Word.bigIntToWord;
+import static reedmuller.Word.wordToBigInt;
 
 /**
  * Classe implémentant les algorithmes de Reed Muller.
@@ -15,11 +15,28 @@ import static reedmuller.Word.*;
  * @author Steven Liatti
  */
 public class ReedMuller {
+	private static final boolean DEBUG_RM = false;
+
     private Word g[];
     private int h[][];
     private Integer r;
     private Integer startDim;
     private Integer endDim;
+
+    private void printG() {
+	    for (int i = 0; i < startDim; i++) {
+		    System.out.println(g[i]);
+	    }
+    }
+
+    private void printH() {
+	    for (int i = 0; i < endDim; i++) {
+		    for (int j = 0; j < endDim; j++) {
+			    System.out.print(h[i][j] + "\t");
+		    }
+		    System.out.println();
+	    }
+    }
 
     /**
      * Construit un code ReedMuller d'ordre r.
@@ -32,6 +49,11 @@ public class ReedMuller {
         endDim = (int) (pow(2, r));
         buildG();
         h = buildH(r);
+        // imprime les matrices G et H en mode debug
+        if (DEBUG_RM) {
+	        printG();
+	        printH();
+        }
     }
 
     /**
@@ -249,18 +271,23 @@ public class ReedMuller {
 		    int tempH[][] = new int[size][size];
 
 		    for (int i = 0; i < size / 2; i++) {
-			    for (int j = 0; j < size; j++) {
-				    tempH[i][j] = subH[i][j % 2];
+			    for (int j = 0; j < size / 2; j++) {
+				    tempH[i][j] = subH[i][j];
 			    }
 		    }
+            for (int i = 0; i < size; i++) {
+                for (int j = size / 2; j < size; j++) {
+                    tempH[i][j] = subH[i % (size / 2)][j % (size / 2)];
+                }
+            }
 		    for (int i = size / 2; i < size; i++) {
 			    for (int j = 0; j < size / 2; j++) {
-				    tempH[i][j] = subH[i % 2][j];
+				    tempH[i][j] = subH[i % (size / 2)][j];
 			    }
 		    }
 		    for (int i = size / 2; i < size; i++) {
 			    for (int j = size / 2; j < size; j++) {
-				    tempH[i][j] = -subH[i % 2][j % 2];
+				    tempH[i][j] = -subH[i % (size / 2)][j % (size / 2)];
 			    }
 		    }
 
@@ -270,40 +297,34 @@ public class ReedMuller {
 
     /**
      * Débruite et décode un mot selon la méthode de la recherche rapide.
-     * En l'état ne fonctionne pas très bien. Pour tester, il faut remplacer
-     * semiExhaustiveSearch dans Main.java et PGM.java par cette fonction.
      *
      * @param noised un mot bruité
      * @return le mot corrigé et décodé si trouvé
      */
     public Word fastSearch(Word noised) {
+        if (noised.size() != endDim) {
+            throw new IllegalArgumentException("The word's length is false (good length = " + endDim + ")");
+        }
 		int fHat[] = new int[endDim];
 		int f[] = new int[endDim];
-		Word tempWord = Word.allWordAt(new Bit(0), startDim);
-		Integer max = Integer.MIN_VALUE;
+		int max = Integer.MIN_VALUE;
+		Integer index = 0;
 
 	    for (int i = 0; i < endDim; i++) {
-		    f[i] = transformationF(encode(tempWord), noised);
-		    tempWord = tempWord.plusOne();
-		    if (abs(f[i]) > max) {
-		    	max = i;
+		    f[i] = (int) pow(-1, noised.at(i).v());
+	    }
+
+	    for (int i = 0; i < endDim; i++) {
+		    for (int j = 0; j < endDim; j++) {
+			    fHat[i] += f[j] * h[j][i];
+		    }
+		    if (abs(fHat[i]) > max) {
+		    	max = abs(fHat[i]);
+		    	index = i;
 		    }
 	    }
 
-	    max = f[max] < 0 ? (max + endDim) % (2 * endDim) : max;
-	    return bigIntToWord(new BigInteger(max.toString()));
-
-	    // En théorie il faudrait faire ce calcul, mais finalement
-	    // d'après nos essais ce n'était pas nécessaire ¯\_(ツ)_/¯
-//	    for (int i = 0; i < endDim; i++) {
-//		    for (int j = 0; j < endDim; j++) {
-//			    fHat[i] += f[j] * h[j][i];
-//		    }
-//		    if (abs(fHat[i]) > max) {
-//		    	max = abs(fHat[i]);
-//		    }
-//	    }
-//
-//        return bigIntToWord(new BigInteger(max.toString()));
+        index = fHat[index] < 0 ? (index + endDim) % (2 * endDim) : index;
+        return bigIntToWord(new BigInteger(index.toString()));
     }
 }

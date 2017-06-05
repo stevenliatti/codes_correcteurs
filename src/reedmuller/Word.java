@@ -123,24 +123,36 @@ public class Word {
 
         Word word = (Word) o;
 
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(value, word.value);
     }
 
-    /**
-     * Dans cette représentation, les bits de poids forts sont à tout à
-     * gauche et ceux de poids faible tout à droite (comme dans le sens
-     * de lecture).
-     *
-     * @return le mot sous forme de String
-     */
-    @Override
-    public String toString() {
+	/**
+	 * Dans cette représentation, les bits de poids forts sont à tout à
+	 * gauche et ceux de poids faible tout à droite (comme dans le sens
+	 * de lecture).
+	 *
+	 * @return le mot sous forme de String
+	 */
+    public String reverse() {
         String str = "";
         for (int i = size() - 1; i >= 0; i--) {
             str += value[i] + "";
         }
         return str;
+    }
+
+	/**
+	 * Construit le string inverse de reverse() (comme dans le cours finalement).
+	 *
+	 * @return le mot sous forme de String
+	 */
+	@Override
+    public String toString() {
+	    String str = "";
+	    for (int i = 0; i < size(); i++) {
+		    str += value[i] + "";
+	    }
+	    return str;
     }
 
     /**
@@ -252,6 +264,6 @@ public class Word {
      * @return un BigInteger
      */
     public static BigInteger wordToBigInt(Word word) {
-        return new BigInteger(word.toString(), 2);
+        return new BigInteger(word.reverse(), 2);
     }
 }

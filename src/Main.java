@@ -13,7 +13,7 @@ import static reedmuller.Word.bigIntToWord;
 import static reedmuller.Word.wordToBigInt;
 
 public class Main {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG_MAIN = false;
 
 	/**
 	 * Fonction de "debug", utile pour avoir la table selon le ReedMuller donné.
@@ -66,12 +66,12 @@ public class Main {
         double seuil = in.nextDouble();
 
         ReedMuller rm = new ReedMuller(r);
-        BigInteger mot = BigInteger.ZERO;
+        BigInteger mot;
         Word intToWord = null;
         Word current = null;
 
 	    // Pour rapidement contrôler la table pour un r donné
-	    if (DEBUG) {
+	    if (DEBUG_MAIN) {
 		    printTable(rm);
 	    }
 
@@ -89,9 +89,10 @@ public class Main {
                 + "2: Décoder\n"
                 + "3: Bruiter\n"
                 + "4: Débruiter\n"
-                + "5: Réinitialiser\n"
+                + "5: Débruiter + décoder (rapide)\n"
+                + "6: Réinitialiser\n"
                 + "Opération choisie:";
-        int choix = 5;
+        int choix = 6;
         if (mode == 1) {
             do {
                 switch (choix) {
@@ -108,12 +109,15 @@ public class Main {
                         current = rm.semiExhaustiveSearch(current);
                         break;
                     case 5:
+                        current = rm.fastSearch(current);
+                        break;
+                    case 6:
                         System.err.println("\nEntrer un mot (en décimal)");
                         mot = new BigInteger(in.next());
                         intToWord = bigIntToWord(mot, r + 1);
                         break;
                 }
-                if (choix != 5) {
+                if (choix != 6) {
                     System.err.println("Valeur du mot courant (en décimal):");
                     System.out.println(wordToBigInt(current).intValue());
                     System.out.println(current);
@@ -122,8 +126,8 @@ public class Main {
                 choix = in.nextInt();
             } while (choix != 0);
         } else if (mode == 2) {
-            choix = 5;
-            String fileName = null;
+            choix = 6;
+            String fileName;
             PGM pgm = null;
             do {
                 switch (choix) {
@@ -140,12 +144,15 @@ public class Main {
                         pgm = pgm.denoise();
                         break;
                     case 5:
+                        pgm = pgm.denoiseAndDecode();
+                        break;
+                    case 6:
                         System.err.println("Nom du fichier de l'image à charger (format pgm):");
                         fileName = in.next();
                         pgm = read(fileName);
                         break;
                 }
-                if (choix != 5) {
+                if (choix != 6) {
                     System.err.println("Nom du fichier où sauver l'image courante (format pgm):");
                     fileName = in.next();
                     write(pgm, fileName);

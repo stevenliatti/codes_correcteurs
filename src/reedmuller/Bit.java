@@ -46,6 +46,15 @@ public class Bit {
     }
 
     /**
+     * Retourne la valeur entière du bit.
+     *
+     * @return le bit sous forme de int
+     */
+    public int v() {
+        return value;
+    }
+
+    /**
      * Retourne l'inverse du bit courant.
      *
      * @return !this

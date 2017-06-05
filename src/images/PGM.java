@@ -99,7 +99,7 @@ public class PGM {
     }
 
     /**
-     * Débruite une image PGM avec l'algo de ReedMuller.
+     * Débruite une image PGM avec l'algo de recherche semi-exhaustive.
      *
      * @return l'image débruitée
      */
@@ -108,6 +108,21 @@ public class PGM {
         for (String n : values) {
             Word bigIntToWord = bigIntToWord(new BigInteger(n), rm.getEndDim());
             Word denoised = rm.semiExhaustiveSearch(bigIntToWord);
+            list.add(wordToBigInt(denoised).toString());
+        }
+        return new PGM(width, height, greyLevel, list);
+    }
+
+    /**
+     * Débruite et décode une image PGM avec l'algo de recherche rapide.
+     *
+     * @return l'image débruitée et décodée
+     */
+    public PGM denoiseAndDecode() {
+        List<String> list = new ArrayList<>(values.size());
+        for (String n : values) {
+            Word bigIntToWord = bigIntToWord(new BigInteger(n), rm.getEndDim());
+            Word denoised = rm.fastSearch(bigIntToWord);
             list.add(wordToBigInt(denoised).toString());
         }
         return new PGM(width, height, greyLevel, list);
